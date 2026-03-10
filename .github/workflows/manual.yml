@@ -1,0 +1,36 @@
+name: PasteHunter Workflow
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Runs daily at 00:00 UTC
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  run_pastehunter:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Create raw directory
+        run: mkdir -p raw
+
+      - name: Run PasteHunter application
+        run: python app.py
+
+      - name: Upload results as artifacts
+        if: success()
+        uses: actions/upload-artifact@v2
+        with:
+          name: pastehunter-results
+          path: raw/
